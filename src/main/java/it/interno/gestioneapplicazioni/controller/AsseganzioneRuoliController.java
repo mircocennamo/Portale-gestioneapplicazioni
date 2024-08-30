@@ -20,17 +20,20 @@ public class AsseganzioneRuoliController {
     @Autowired
     private AssegnazioneRuoliService assegnazioneRuoliService;
 
-    @Operation(summary = "API per recuperare la lista delle applicazioni con ruoli che possono essere assenati ad un utente")
+    private static final String OAM_REMOTE_USER_HEADER = "OAM_REMOTE_USER";
+
+    @Operation(summary = "API per recuperare la lista delle applicazioni con ruoli che possono essere assegnati ad un utente")
     @PostMapping("/lista-applicazioni-assegnabili")
     public ResponseEntity<ResponseDto<Page<AssegnazioneRuoliDto>>> getListaApplicazioniAssegnabili(@RequestParam String codiceUtente,
                                                                                                    @RequestParam Integer flagRicerca,
                                                                                                    @RequestParam String parametroRicerca,
                                                                                                    @RequestParam(required = false) Integer ambito,
-                                                                                                   @RequestBody PaginazioneDto paginazione){
+                                                                                                   @RequestBody PaginazioneDto paginazione,
+                                                                                                   @RequestHeader(OAM_REMOTE_USER_HEADER) String oamRemoteUser){
 
         return ResponseEntity.ok(ResponseDto.<Page<AssegnazioneRuoliDto>>builder()
                 .code(HttpStatus.OK.value())
-                .body(assegnazioneRuoliService.getListaApplicazioniAssegnabili(codiceUtente, flagRicerca, parametroRicerca, ambito, paginazione))
+                .body(assegnazioneRuoliService.getListaApplicazioniAssegnabili(codiceUtente, flagRicerca, parametroRicerca, ambito, paginazione,oamRemoteUser))
                 .build());
     }
 

@@ -44,36 +44,45 @@ public interface ApplicazioneRepository extends PagingAndSortingRepository<Appli
     @Query(value = "SELECT DISTINCT a.* " +
             "FROM SSD_SECURITY.SEC_APPLICAZIONE a INNER JOIN SSD_SECURITY.GROUPS g ON a.APP_ID = g.G_APP " +
             "   INNER JOIN SSD_SECURITY.SEC_REGOLE_SICUREZZA rs ON a.APP_ID = rs.APP_ID AND g.G_NAME = rs.G_NAME " +
+            "INNER JOIN SSD_SECURITY.USERS user ON user.G_MEMBER = ?6" +
+            "INNER JOIN SSD_SECURITY.SEC_RUOLO_QUALIF_ASSEGNABILITA ruolo ON user.QUALIFICA = ruolo.QUALIFICA_ASSEGNABILITA_ID " +
             "WHERE " +
             "a.DATE_CANC IS NULL " +
             "AND rs.DATE_CAN IS NULL " +
             "AND g.DATA_CAN IS NULL " +
             "AND (?4 IS NULL OR a.ORDER_ID_AMBITO = ?4) " +
             "AND ((?2 = 0 AND (a.APP_NAME LIKE ?3 OR UPPER(a.APP_DESCRIPTION) LIKE ?3)) OR (?2 = 1 AND g.G_NAME LIKE ?3)) " +
+            "AND user.DATA_CAN IS NULL " +
             "AND SSD_SECURITY.IS_RUOLO_APPLICATIVO_ASSEGNABILE(?1, g.G_APP, g.G_NAME) > 0",
             countQuery = "SELECT DISTINCT a.* " +
                     "FROM SSD_SECURITY.SEC_APPLICAZIONE a INNER JOIN SSD_SECURITY.GROUPS g ON a.APP_ID = g.G_APP " +
                     "   INNER JOIN SSD_SECURITY.SEC_REGOLE_SICUREZZA rs ON a.APP_ID = rs.APP_ID AND g.G_NAME = rs.G_NAME " +
+                    "INNER JOIN SSD_SECURITY.USERS user ON user.G_MEMBER = ?6" +
+                    "INNER JOIN SSD_SECURITY.SEC_RUOLO_QUALIF_ASSEGNABILITA ruolo ON user.QUALIFICA = ruolo.QUALIFICA_ASSEGNABILITA_ID " +
                     "WHERE " +
                     "a.DATE_CANC IS NULL " +
                     "AND rs.DATE_CAN IS NULL " +
                     "AND g.DATA_CAN IS NULL " +
+                    "AND user.DATA_CAN IS NULL " +
                     "AND (?4 IS NULL OR a.ORDER_ID_AMBITO = ?4) " +
                     "AND ((?2 = 0 AND (a.APP_NAME LIKE ?3 OR UPPER(a.APP_DESCRIPTION) LIKE ?3)) OR (?2 = 1 AND g.G_NAME LIKE ?3)) " +
                     "AND SSD_SECURITY.IS_RUOLO_APPLICATIVO_ASSEGNABILE(?1, g.G_APP, g.G_NAME) > 0", nativeQuery = true)
-    List<Applicazione> getApplicazioniPerAssegnazioneConRuoliAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito, Pageable pageable);
+    List<Applicazione> getApplicazioniPerAssegnazioneConRuoliAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito, Pageable pageable,String oamRemoteUser);
 
     @Query(value = "SELECT COUNT(DISTINCT a.APP_ID) " +
             "FROM SSD_SECURITY.SEC_APPLICAZIONE a INNER JOIN SSD_SECURITY.GROUPS g ON a.APP_ID = g.G_APP " +
             "   INNER JOIN SSD_SECURITY.SEC_REGOLE_SICUREZZA rs ON a.APP_ID = rs.APP_ID AND g.G_NAME = rs.G_NAME " +
+            "INNER JOIN SSD_SECURITY.USERS user ON user.G_MEMBER = ?5" +
+            "INNER JOIN SSD_SECURITY.SEC_RUOLO_QUALIF_ASSEGNABILITA ruolo ON user.QUALIFICA = ruolo.QUALIFICA_ASSEGNABILITA_ID " +
             "WHERE " +
             "a.DATE_CANC IS NULL " +
             "AND rs.DATE_CAN IS NULL " +
             "AND g.DATA_CAN IS NULL " +
+            "AND user.DATA_CAN IS NULL " +
             "AND (?4 IS NULL OR a.ORDER_ID_AMBITO = ?4) " +
             "AND ((?2 = 0 AND (a.APP_NAME LIKE ?3% OR UPPER(a.APP_DESCRIPTION) LIKE ?3%)) OR (?2 = 1 AND g.G_NAME LIKE ?3%)) " +
             "AND SSD_SECURITY.IS_RUOLO_APPLICATIVO_ASSEGNABILE(?1, g.G_APP, g.G_NAME) > 0", nativeQuery = true)
-    Integer countTotalApplicazioniAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito);
+    Integer countTotalApplicazioniAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito,String oamRemoteUser);
 
     @Query(value =
             "SELECT * FROM " +

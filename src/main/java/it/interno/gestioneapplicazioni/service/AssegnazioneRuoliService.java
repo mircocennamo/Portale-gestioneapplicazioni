@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.Timestamp;
 
 public interface AssegnazioneRuoliService {
-    Page<AssegnazioneRuoliDto> getListaApplicazioniAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito, PaginazioneDto paginazione);
+    Page<AssegnazioneRuoliDto> getListaApplicazioniAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito, PaginazioneDto paginazione,String oamRemoteUser);
 
 
     void deleteAll(String idApplicazione, String utente, String ufficio, Timestamp data);

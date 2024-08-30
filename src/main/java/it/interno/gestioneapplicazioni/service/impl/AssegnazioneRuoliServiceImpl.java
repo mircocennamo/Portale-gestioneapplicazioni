@@ -7,7 +7,6 @@ import it.interno.gestioneapplicazioni.entity.*;
 import it.interno.gestioneapplicazioni.exception.ExceededLimitGroupMemberException;
 import it.interno.gestioneapplicazioni.repository.*;
 import it.interno.gestioneapplicazioni.service.AssegnazioneRuoliService;
-import it.sdi.utility.Util;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -45,7 +46,7 @@ public class AssegnazioneRuoliServiceImpl implements AssegnazioneRuoliService {
     Integer limitRemoveGroupMembers;
 
     @Override
-    public Page<AssegnazioneRuoliDto> getListaApplicazioniAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito, PaginazioneDto paginazione) {
+    public Page<AssegnazioneRuoliDto> getListaApplicazioniAssegnabili(String codiceUtente, Integer flagRicerca, String parametroRicerca, Integer ambito, PaginazioneDto paginazione,String oamRemoteUser) {
 
         Pageable pageable = PageRequest.of(
                 paginazione.getPageNumber(),
@@ -56,23 +57,28 @@ public class AssegnazioneRuoliServiceImpl implements AssegnazioneRuoliService {
         );
 
         List<Applicazione> applicazioni = applicazioneRepository.getApplicazioniPerAssegnazioneConRuoliAssegnabili(
-                codiceUtente, flagRicerca, StringUtils.isBlank(parametroRicerca) ? "%" : "%" + parametroRicerca + "%", ambito, pageable);
+                codiceUtente, flagRicerca, StringUtils.isBlank(parametroRicerca) ? "%" : "%" + parametroRicerca + "%", ambito, pageable,oamRemoteUser);
 
-        Integer totalElements = applicazioneRepository.countTotalApplicazioniAssegnabili(codiceUtente, flagRicerca, StringUtils.isBlank(parametroRicerca) ? "" : parametroRicerca, ambito);
+        Integer totalElements = applicazioneRepository.countTotalApplicazioniAssegnabili(codiceUtente, flagRicerca, StringUtils.isBlank(parametroRicerca) ? "" : parametroRicerca, ambito,oamRemoteUser);
+
+
 
         List<AssegnazioneRuoliDto> results = new ArrayList<>();
         applicazioni.forEach(el -> {
-
-            AssegnazioneRuoliDto temp = new AssegnazioneRuoliDto(codiceUtente, el.getAppId(), el.getAppName(), el.getAppDescription(), el.getAppScope());
-
-            // GET RUOLI DELL'APPLICAZIONE
             List<Groups> ruoli = groupsRepository.findAllAssegnabili(el.getAppId(), codiceUtente);
-            temp.setRuoliAssegnabili(ruoli, codiceUtente, groupMembersRepository);
-            // GET MOTIVAZIONI DELL'APPLICAZIONE
-            List<TipoMotivazione> tipiMotivazione = tipoMotivazioneRepository.getAllByApp(el.getAppId());
-            temp.setMotivazioniAssegnabili(tipiMotivazione, codiceUtente, applicMotivMembersRepository);
+            if(ruoli != null && !ruoli.isEmpty()){
+                AssegnazioneRuoliDto temp = new AssegnazioneRuoliDto(codiceUtente, el.getAppId(), el.getAppName(), el.getAppDescription(), el.getAppScope());
 
-            results.add(temp);
+                // GET RUOLI DELL'APPLICAZIONE
+
+                temp.setRuoliAssegnabili(ruoli, codiceUtente, groupMembersRepository);
+                // GET MOTIVAZIONI DELL'APPLICAZIONE
+                List<TipoMotivazione> tipiMotivazione = tipoMotivazioneRepository.getAllByApp(el.getAppId());
+                temp.setMotivazioniAssegnabili(tipiMotivazione, codiceUtente, applicMotivMembersRepository);
+
+                results.add(temp);
+            }
+
         });
 
         return new PageImpl<>(results, pageable, totalElements);
