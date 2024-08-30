@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    config:
+      discovery:
+        serviceId: config-server-portale
+        enabled: true
+  application:
+    name: gestioneapplicazioni
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://192.168.15.190:8762/eureka/
+

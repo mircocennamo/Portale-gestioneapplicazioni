@@ -1,0 +1,14 @@
+spring:
+  cloud:
+    config:
+      discovery:
+        serviceId: config-server-portale
+        enabled: true
+  application:
+    name: gestioneapplicazioni
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://preprorabe-sb01:8762/eureka/,http://preprorabe-sb02:8762/eureka/
